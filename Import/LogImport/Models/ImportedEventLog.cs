@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using DeclarativePM.Lib.Models.LogModels;
 using LogImport.Exceptions;
 
 namespace LogImport.Models
@@ -146,15 +147,17 @@ namespace LogImport.Models
         /// </summary>
         /// <param name="rows">Represents CSV rows (without headers)</param>
         /// <param name="headers">Represents CSV headers row</param> 
-        public ImportedEventLog(List<string[]> rows, string[] headers)
-        {
-            this._headers = headers;
-            this._rows = rows;
+        public ImportedEventLog(List<string[]> rows, string[] headers) : this(rows, headers, 0, 1, null, null) {}
 
-            this._caseId = 0;
-            this._activity = 1;
-            this._timestamp = null;
-            this._resources = null;
+        public ImportedEventLog(List<string[]> rows, string[] headers, int activity, int caseId, int? timestamp,
+            string timestampFormat)
+        {
+            this._rows = rows;
+            this._headers = headers;
+            this._activity = activity;
+            this._caseId = caseId;
+            this._timestamp = timestamp;
+            this._timestampFormat = timestampFormat;
         }
 
         /// <summary>
@@ -295,6 +298,31 @@ namespace LogImport.Models
             failedToParseTimestamp = "";
             TimestampFormat = timestampFormat;
             return true;
+        }
+
+        public EventLog BuildEventLog()
+        {
+            var events = new List<Event>(_rows.Capacity);
+            
+            events.AddRange(_rows.Select(row =>
+            {
+                var e = new Event(
+                    row[_activity],
+                    row[_caseId],
+                    // TODO: Add the resources
+                    new string[1]
+                );
+
+                // TODO: Add timestamping
+                // if (_timestamp.HasValue && _timestamp < _headers.Length)
+                // {
+                //     e.TimeStamp = row[_timestamp.Value];
+                // }
+
+                return e;
+            }));
+
+            return new EventLog(events, Headers.ToList());
         }
     }
 }
