@@ -1,17 +1,20 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { LayoutWithNavbar } from './layout/LayoutWithNavbar';
 import { MainLayout } from './layout/MainLayout';
-import { MINER_TYPE } from './models/MinerType';
+import { AlphaMinerPage } from './pages/AlphaMinerPage';
 import { ConformancePage } from './pages/ConformancePage';
 import { DiscoverConfigure } from './pages/DiscoverConfigure';
 import { DiscoverPage } from './pages/DiscoverPage';
 import { DiscoverView } from './pages/DiscoverView';
+import { ErrorPage } from './pages/ErrorPage';
+import { HeuristicMinerPage } from './pages/HeuristicMinerPage';
 import { HomePage } from './pages/HomePage';
 import { LogOperationSelection } from './pages/LogOperationSelection';
 import { Logs } from './pages/Logs';
-import { MinePage } from './pages/MinePage';
 import { ModelOperationSelection } from './pages/ModelOperationSelection';
 import { Models } from './pages/Models';
+import { ExistingLogWrapper } from './wrappers/ExistingLogWrapper';
+import { ExistingModelWrapper } from './wrappers/ExistingModelWrapper';
 
 export enum TargetURL {
     HOME = '/',
@@ -29,7 +32,6 @@ export enum TargetURL {
     MODELS = '/models',
     MODELS_OPERATION = '/models/operation/:entityName',
     CONFORMANCE = '/models/conformance/:entityName',
-    EDIT = '/models/edit/:entityName',
 }
 
 export const router = createBrowserRouter([
@@ -53,30 +55,54 @@ export const router = createBrowserRouter([
             },
             {
                 path: TargetURL.LOGS_OPERATION,
-                element: <LogOperationSelection />,
+                element: (
+                    <ExistingLogWrapper>
+                        <LogOperationSelection />,
+                    </ExistingLogWrapper>
+                ),
             },
             {
                 path: TargetURL.ALPHA_MINE,
-                element: <MinePage miningType={MINER_TYPE.ALPHA} />,
+                element: (
+                    <ExistingLogWrapper>
+                        <AlphaMinerPage />,
+                    </ExistingLogWrapper>
+                ),
             },
             {
                 path: TargetURL.HEURISTIC_MINE,
-                element: <MinePage miningType={MINER_TYPE.HEURISTIC} />,
+                element: (
+                    <ExistingLogWrapper>
+                        <HeuristicMinerPage />,
+                    </ExistingLogWrapper>
+                ),
             },
             {
                 path: TargetURL.DISCOVER_SELECT_CONSTRAINTS,
                 children: [
                     {
                         index: true,
-                        element: <DiscoverPage />,
+                        element: (
+                            <ExistingLogWrapper>
+                                <DiscoverPage />,
+                            </ExistingLogWrapper>
+                        ),
                     },
                     {
                         path: TargetURL.DISCOVER_CONFIGURE_CONSTRAINTS,
-                        element: <DiscoverConfigure />,
+                        element: (
+                            <ExistingLogWrapper>
+                                <DiscoverConfigure />,
+                            </ExistingLogWrapper>
+                        ),
                     },
                     {
                         path: TargetURL.DISCOVER_VIEW_MODEL,
-                        element: <DiscoverView />,
+                        element: (
+                            <ExistingLogWrapper>
+                                <DiscoverView />,
+                            </ExistingLogWrapper>
+                        ),
                     },
                 ],
             },
@@ -92,16 +118,24 @@ export const router = createBrowserRouter([
             },
             {
                 path: TargetURL.MODELS_OPERATION,
-                element: <ModelOperationSelection />,
-            },
-            {
-                path: TargetURL.EDIT,
-                element: <div>Edit Page</div>,
+                element: (
+                    <ExistingModelWrapper>
+                        <ModelOperationSelection />,
+                    </ExistingModelWrapper>
+                ),
             },
             {
                 path: TargetURL.CONFORMANCE,
-                element: <ConformancePage />,
+                element: (
+                    <ExistingModelWrapper>
+                        <ConformancePage />,
+                    </ExistingModelWrapper>
+                ),
             },
         ],
+    },
+    {
+        path: '*',
+        element: <ErrorPage />,
     },
 ]);
